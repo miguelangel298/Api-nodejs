@@ -1,5 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import Post from '../models/Post';
+import { PostRepository } from '../../repositories/PostRepository';
+import { Post } from '../../entities/Post'
+import { MongoClient } from 'mongodb';
+// import * as mongoose from 'mongoose';
+// import Post from '../models/Post';
 
 class PostRouter {
   router: Router;
@@ -13,120 +17,116 @@ class PostRouter {
    * GetPosts
    */
   public GetPosts(req: Request, res: Response): void {
-    Post.find({})
-      .then((data) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          data
-        })
 
-      }).catch((err) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          err
-        });
-      });
+
   }
 
   /**
   * GetPosts
   */
   public GetPost(req: Request, res: Response): void {
-    const slug: string = req.params.slug
-    Post.findOne({ slug })
-      .then((data) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          data
-        })
+    // const slug: string = req.params.slug
+    // Post.findOne({ slug })
+    //   .then((data) => {
+    //     const status = res.statusCode;
+    //     res.json({
+    //       status,
+    //       data
+    //     })
 
-      }).catch((err) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          err
-        });
-      });
+    //   }).catch((err) => {
+    //     const status = res.statusCode;
+    //     res.json({
+    //       status,
+    //       err
+    //     });
+    //   });
   }
 
   /**
   * CreatePost
   */
   public CreatePost(req: Request, res: Response): void {
-    const title: string = req.body.title;
-    const content: string = req.body.content;
-    const featuredImage: string = req.body.featuredimage;
-    const slug: string = req.body.slug
 
-    const post = new Post({
-      title,
-      content,
-      featuredImage,
-      slug,
-    });
+    (async () => {
 
-    post.save()
-      .then((data) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          data
-        })
+      const title: string = req.body.title;
+      const content: string = req.body.content;
+      const featuredImage: string = req.body.featuredimage;
+      const slug: string = req.body.slug
 
-      }).catch((err) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          err
-        });
+      // connecting at mongoClient
+      const connection = await MongoClient.connect('mongodb://localhost');
+      const db = connection.db('tes');
+
+      // our operations
+      // creating a post
+      const post = new Post(title, content, slug, featuredImage);
+
+      // initializing the repository
+      const repository = new PostRepository(db, 'tes');
+
+      // call create method from generic repository
+      const result = await repository.create(post);
+
+      //call specific method from post class
+      const count = await repository.countOfPosts();
+
+      res.json({
+        result,
+        count
       });
+
+      /**
+       * post inserted with success
+        the count of posts is 1
+       */
+    })();
+
   }
 
   /**
   * UpdatePost
   */
   public UpdatePost(req: Request, res: Response): void {
-    const slug: string = req.params.slug
-    Post.findOneAndUpdate({ slug }, req.body)
-      .then((data) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          data
-        })
+    // const slug: string = req.params.slug
+    // Post.findOneAndUpdate({ slug }, req.body)
+    //   .then((data) => {
+    //     const status = res.statusCode;
+    //     res.json({
+    //       status,
+    //       data
+    //     })
 
-      }).catch((err) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          err
-        });
-      });
+    //   }).catch((err) => {
+    //     const status = res.statusCode;
+    //     res.json({
+    //       status,
+    //       err
+    //     });
+    //   });
   }
 
   /**
   * DeletePosts
   */
   public DeletePost(req: Request, res: Response): void {
-    const slug: string = req.params.slug
-    Post.findOneAndRemove({ slug })
-      .then((data) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          data
-        })
+    // const slug: string = req.params.slug
+    // Post.findOneAndRemove({ slug })
+    //   .then((data) => {
+    //     const status = res.statusCode;
+    //     res.json({
+    //       status,
+    //       data
+    //     })
 
-      }).catch((err) => {
-        const status = res.statusCode;
-        res.json({
-          status,
-          err
-        });
-      });
+    //   }).catch((err) => {
+    //     const status = res.statusCode;
+    //     res.json({
+    //       status,
+    //       err
+    //     });
+    //   });
   }
 
   routes() {
