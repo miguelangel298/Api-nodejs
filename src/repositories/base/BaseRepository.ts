@@ -5,7 +5,7 @@ import { IRead } from '../interfaces/IRead';
 
 // import moongose
 
-import { MongoClient, Db, Collection, InsertOneWriteOpResult } from 'mongodb'
+import { MongoClient, Db, Collection, InsertOneWriteOpResult, FilterQuery } from 'mongodb'
 
 //that class only ca be extended
 export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
@@ -26,12 +26,19 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     return !!result.result.ok;
   }
 
+  async find(item: T): Promise<boolean> {
+    const result = await this._collection.find(item)
 
-  find(item: T): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    return !!result.read
   }
+
+  // find(item: T): Promise<boolean> {
+  //   throw new Error("Method not implemented.");
+  // }
   findOne(id: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    const result = this._collection.findOne({'title': id})
+
+    return result
   }
   update(id: string, item: T): Promise<boolean> {
     throw new Error("Method not implemented.");

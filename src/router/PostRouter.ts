@@ -1,9 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PostRepository } from '../../repositories/PostRepository';
-import { Post } from '../../entities/Post'
+import { PostRepository } from '../repositories/PostRepository';
+import { Post } from '../entities/Post'
 import { MongoClient } from 'mongodb';
-// import * as mongoose from 'mongoose';
-// import Post from '../models/Post';
 
 class PostRouter {
   router: Router;
@@ -17,7 +15,7 @@ class PostRouter {
    * GetPosts
    */
   public GetPosts(req: Request, res: Response): void {
-
+   
 
   }
 
@@ -25,22 +23,23 @@ class PostRouter {
   * GetPosts
   */
   public GetPost(req: Request, res: Response): void {
-    // const slug: string = req.params.slug
-    // Post.findOne({ slug })
-    //   .then((data) => {
-    //     const status = res.statusCode;
-    //     res.json({
-    //       status,
-    //       data
-    //     })
+    (async () => {
+      const slug: string = req.params.slug
+      // connecting at mongoClient
+      const connection = await MongoClient.connect('mongodb://localhost');
+      const db = connection.db('tes');
+      const post = {
+        title: slug
+      };
+      // initializing the repository
+      const repository = new PostRepository(db, 'tes');
 
-    //   }).catch((err) => {
-    //     const status = res.statusCode;
-    //     res.json({
-    //       status,
-    //       err
-    //     });
-    //   });
+      // call create method from generic repository
+      const result = await repository.getPost(post);
+      res.json({
+        result,
+      });
+    })();
   }
 
   /**
@@ -89,44 +88,14 @@ class PostRouter {
   * UpdatePost
   */
   public UpdatePost(req: Request, res: Response): void {
-    // const slug: string = req.params.slug
-    // Post.findOneAndUpdate({ slug }, req.body)
-    //   .then((data) => {
-    //     const status = res.statusCode;
-    //     res.json({
-    //       status,
-    //       data
-    //     })
-
-    //   }).catch((err) => {
-    //     const status = res.statusCode;
-    //     res.json({
-    //       status,
-    //       err
-    //     });
-    //   });
+    
   }
 
   /**
   * DeletePosts
   */
   public DeletePost(req: Request, res: Response): void {
-    // const slug: string = req.params.slug
-    // Post.findOneAndRemove({ slug })
-    //   .then((data) => {
-    //     const status = res.statusCode;
-    //     res.json({
-    //       status,
-    //       data
-    //     })
 
-    //   }).catch((err) => {
-    //     const status = res.statusCode;
-    //     res.json({
-    //       status,
-    //       err
-    //     });
-    //   });
   }
 
   routes() {
